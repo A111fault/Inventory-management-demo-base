@@ -74,7 +74,8 @@ if (isset($_POST['save_excel_data'])) {
 }
 
 // Function to download the Excel file
-function downloadExcelFile($con) {
+function downloadExcelFile($con)
+{
     require_once 'vendor/autoload.php'; // Include autoload.php
 
     $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -112,7 +113,7 @@ function downloadExcelFile($con) {
     exit;
 }
 
-if(isset($_POST['download_excel'])) {
+if (isset($_POST['download_excel'])) {
     downloadExcelFile($con);
 }
 ?>
@@ -155,9 +156,11 @@ if(isset($_POST['download_excel'])) {
             border-collapse: collapse;
         }
 
-        th, td {
-            padding: 10px;
-            text-align: center;
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
         }
 
         th {
@@ -176,12 +179,12 @@ if(isset($_POST['download_excel'])) {
 </head>
 
 <body>
-<?php include 'index.php'; ?>
+    <?php include 'index.php'; ?>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 <div class="container-box">
-                    <form class="my-2 mx-2" method="post">
+                    <form class="my-3 mx-3" method="post">
                         <h2 class="mb-4">Search Inbound Details</h2>
                         <div class="row">
                             <div class="col-md-3">
@@ -191,25 +194,25 @@ if(isset($_POST['download_excel'])) {
                                 <input type="text" class="form-control form-control-sm mb-3" name="item_description" placeholder="Item description">
                             </div>
                             <div class="col-md-3">
-                                <input type="text" class="form-control form-control-sm mb-3" name="date_received" placeholder="Received Date">
+                                <input type="date" class="form-control form-control-sm mb-3" name="date_received" placeholder="Received Date">
                             </div>
                             <div class="col-md-3">
                                 <input type="text" class="form-control form-control-sm mb-3" name="supplier" placeholder="Supplier name">
                             </div>
                         </div>
                         <div class="button-group">
-                            <button type="submit" name="submit" class="btn btn-dark">Search</button>
+                            <button type="submit" name="submit" class="btn btn-secondary">Search</button>
                             <button type="submit" name="reset" class="btn btn-danger">Reset</button>
                             <button type="submit" name="download_excel" class="btn btn-success">Download Excel</button>
                         </div>
                     </form>
-                    <div class="container my-2 mx-2 table-container">
-                        <table class="table table-bordered border-primary">
-                            <thead>
+                    <div class="container my-1 mx-1 table-container">
+                        <table class="table table-bordered border-primary table-striped">
+                            <thead class="table-dark">
                                 <tr>
                                     <th>SN</th>
                                     <th>Item Id</th>
-                                    <th>Item Descrition</th>
+                                    <th>Item Description</th>
                                     <th>Item Quantity</th>
                                     <th>Unit Price</th>
                                     <th>Date Received</th>
@@ -220,12 +223,34 @@ if(isset($_POST['download_excel'])) {
                             </thead>
                             <tbody>
                                 <?php
+                                if (mysqli_connect_errno()) {
+                                    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+                                    exit();
+                                }
+
+                                // Number of columns per page
+                                $columns_per_page = 10;
+
+                                // Number of records per page
+                                $records_per_page = $columns_per_page; // Adjust to match the number of columns
+
+                                // Determine current page number
+                                $current_page = isset($_GET['page']) ? $_GET['page'] : 1;
+
+                                // Calculate the starting record for the current page
+                                $start_from = ($current_page - 1) * $records_per_page;
+
+
+
                                 if (!isset($_POST['submit'])) {
-                                    $sql = "SELECT * FROM `inbound` WHERE SN <= 50"; // Limit data to SN 50
+                                    $sql = "SELECT * FROM `inbound` WHERE SN <= 50 LIMIT $start_from, $records_per_page";
                                     $result = mysqli_query($con, $sql);
+
+                                    $counter = 0;
                                     while ($row = mysqli_fetch_assoc($result)) {
-                                        echo '<tr>
-                                                <td>' . $row['SN'] . '</td>
+                                        echo "<tr>";
+
+                                        echo '<td>' . $row['SN'] . '</td>
                                                 <td>' . $row['item_id'] . '</td>
                                                 <td>' . $row['item_description'] . '</td>
                                                 <td>' . $row['item_quantity'] . '</td>
@@ -233,10 +258,12 @@ if(isset($_POST['download_excel'])) {
                                                 <td>' . $row['date_received'] . '</td>
                                                 <td>' . $row['supplier'] . '</td>
                                                 <td>' . $row['total_price'] . '</td>
-                                                <td>' . $row['remarks'] . '</td>
-                                              </tr>';
+                                                <td>' . $row['remarks'] . '</td>';
+
+                                        echo "</tr>";
                                     }
                                 } else {
+                                    // Handling form submission with SQL query
                                     $item_id = isset($_POST['item_id']) ? $_POST['item_id'] : '';
                                     $item_description = isset($_POST['item_description']) ? $_POST['item_description'] : '';
                                     $date_received = isset($_POST['date_received']) ? $_POST['date_received'] : '';
@@ -271,25 +298,59 @@ if(isset($_POST['download_excel'])) {
                                                     <td>' . $row['supplier'] . '</td>
                                                     <td>' . $row['total_price'] . '</td>
                                                     <td>' . $row['remarks'] . '</td>
-                                                  </tr>';
+                                                </tr>';
                                             }
                                         }
                                     } else {
                                         echo '<tr><td colspan="8">Data not found</td></tr>';
                                     }
                                 }
+
+                                echo "</table>";
+
+                                // Pagination links
+                                echo '<div>';
+                                $total_records_sql = "SELECT COUNT(*) AS total_records FROM `inbound` WHERE SN <= 50";
+                                $result = mysqli_query($con, $total_records_sql);
+                                $total_records = mysqli_fetch_assoc($result)['total_records'];
+                                $total_pages = ceil($total_records / $records_per_page);
+
+                                echo '<nav aria-label="Page navigation example">';
+                                echo '<ul class="pagination">';
+                                // Previous button
+                                if ($current_page > 1) {
+                                    echo '<li class="page-item"><a class="page-link" href="?page=' . ($current_page - 1) . '" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+                                }
+
+                                // Page numbers
+                                for ($i = 1; $i <= $total_pages; $i++) {
+                                    echo '<li class="page-item ' . ($current_page == $i ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+                                }
+
+                                // Next button
+                                if ($current_page < $total_pages) {
+                                    echo '<li class="page-item"><a class="page-link" href="?page=' . ($current_page + 1) . '" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+                                }
+                                echo '</ul>';
+                                echo '</nav>';
+                                
+
                                 ?>
                             </tbody>
                         </table>
                     </div>
+                    </tbody>
+                    </table>
                     <form action="" method="POST" enctype="multipart/form-data">
                         <input type="file" name="import_file" class="form-control" />
                         <button type="submit" name="save_excel_data" class="btn btn-primary mt-3">Import</button>
                     </form>
-                    
                 </div>
+
+
             </div>
         </div>
+    </div>
     </div>
 </body>
 

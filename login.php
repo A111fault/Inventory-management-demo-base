@@ -14,13 +14,13 @@ if (isset($_POST['submit'])) {
 
         $row = mysqli_fetch_assoc($select_users);
 
-        if ($row['user_type'] == 'admin') {
+        if ($row['user_type'] == 'Admin') {
 
             $_SESSION['admin_name'] = $row['name'];
             $_SESSION['admin_email'] = $row['email'];
             $_SESSION['admin_id'] = $row['id'];
             header('location:index.php');
-        } elseif ($row['user_type'] == 'user') {
+        } elseif ($row['user_type'] == 'Employee') {
 
             $_SESSION['user_name'] = $row['name'];
             $_SESSION['user_email'] = $row['email'];

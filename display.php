@@ -28,6 +28,7 @@ include 'config.php';
                 <thead class="table-dark">
                     <tr>
                         <th scope="col">Sl no.</th>
+                        <th scope="col">User</th>
                         <th scope="col">Name</th>
                         <th scope="col">Email</th>
                         <th scope="col">Mobile</th>
@@ -42,6 +43,7 @@ include 'config.php';
                     if ($result && mysqli_num_rows($result) > 0) {
                         while ($row = mysqli_fetch_assoc($result)) {
                             $id = $row['id'];
+                            $user_type = $row['user_type'];
                             $name = $row['name'];
                             $email = $row['email'];
                             $mobile = $row['mobile'];
@@ -49,6 +51,7 @@ include 'config.php';
 
                             echo "<tr>";
                             echo "<td>$id</td>";
+                            echo "<td>$user_type</td>";
                             echo "<td>$name</td>";
                             echo "<td>$email</td>";
                             echo "<td>$mobile</td>";

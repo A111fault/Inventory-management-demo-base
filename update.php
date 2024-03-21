@@ -5,19 +5,21 @@ $id=$_GET['updateid'];
 $sql="Select * from crud where id=$id";
 $result=mysqli_query($conn,$sql);
 $row=mysqli_fetch_assoc($result);
+$user_type=$row['user_type'];
 $name=$row['name'];
 $email=$row['email'];
 $mobile=$row['mobile'];
 $password=$row['password'];
 
 if (isset($_POST['submit'])){
+    $user_type=$_POST['user_type'];
     $name= $_POST['name'];
     $email= $_POST['email'];
     $mobile= $_POST['mobile'];
     $password= $_POST['password'];
 
     // Remove single quotes from 'crud'
-    $sql = "UPDATE crud SET id=$id, name='$name', email='$email', mobile='$mobile', password='$password'where id=$id";
+    $sql = "UPDATE crud SET id=$id, user_type='$user_type',name='$name', email='$email', mobile='$mobile', password='$password'where id=$id";
     $result=mysqli_query($conn,$sql);
     if ($result){
         //echo 'Data updated successfully';
@@ -63,6 +65,10 @@ if (isset($_POST['submit'])){
             <div class="form-group">
                 <label>Password</label>
                 <input type="password" class="form-control" placeholder="Enter your password" name="password" value=<?php echo $password;?>>
+            </div>
+            <div class="form-group">
+                <label>User Type</label>
+                <input type="text" class="form-control" placeholder="User Type" name="user_type" value=<?php echo $user_type;?>>
             </div>
 
             <button type="submit" class="btn btn-primary my-3" name="submit">Update</button>

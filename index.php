@@ -61,7 +61,7 @@
           </ul>
           <div class="mt-3">
             <div class="mb-2">
-              <a href="display.php" class="btn btn-primary" role="button">Users</a>
+              <a href="display.php" class="btn btn-warning" role="button">User Management</a>
 
             </div>
             <div>

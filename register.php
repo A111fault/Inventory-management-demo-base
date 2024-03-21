@@ -82,8 +82,8 @@ if (isset($_POST['submit'])) {
                 </div>
                 <div class="form-group mb-3">
                     <select name="user_type">
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                        <option value="Employee">Employee</option>
+                        <option value="Admin">Admin</option>
                     </select>
                 </div>
                 <input type="submit" name="submit" value="Register Now" class="btn btn-primary">
